@@ -1,6 +1,19 @@
-import liff from '@line/liff';
+import liff from "@line/liff"
 
 export const initLiff = async () => {
-  await liff.init({ liffId: import.meta.env.VITE_LIFF_ID as string });
-  return liff;
-};
+  if (typeof window === "undefined") return
+
+  await liff.init({
+    liffId: import.meta.env.VITE_LIFF_ID
+  })
+
+  // 👇 เช็ค login ก่อน
+  if (!liff.isLoggedIn()) {
+    liff.login()
+    return
+  }
+
+  // ตอนนี้ safe แล้ว
+  const profile = await liff.getProfile()
+  return profile
+}
