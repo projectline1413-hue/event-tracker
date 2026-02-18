@@ -8,7 +8,7 @@ export async function getOrCreateProfile(
     .from("profiles")
     .select("*")
     .eq("line_user_id", lineUserId)
-    .single();
+    .maybeSingle();
 
   if (existing) return existing;
 
