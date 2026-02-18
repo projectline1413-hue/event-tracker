@@ -8,8 +8,10 @@ const profile = ref<any>(null)
 
 onMounted(async () => {
   try {
-    const liff = await initLiff()
-    const user = await liff.getProfile()
+    const liffInstance = await initLiff()
+    if (!liffInstance) return
+
+    const user = await liffInstance.getProfile()
 
     const dbProfile = await getOrCreateProfile(
       user.userId,
