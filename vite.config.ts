@@ -5,4 +5,14 @@ import tailwindcss from "@tailwindcss/vite";
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [vue(), tailwindcss()],
+  server: {
+    host: true,
+    allowedHosts: ["unfrounced-ungrammatically-luther.ngrok-free.dev"],
+    proxy: {
+      "/api": {
+        target: "http://localhost:3000",
+        changeOrigin: true,
+      },
+    },
+  },
 });

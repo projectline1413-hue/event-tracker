@@ -1,1 +1,54 @@
 @import "tailwindcss";
+
+:root {
+  /* App color tokens (only colors changed) */
+  --app-bg: #071427; /* main background - near black navy */
+  --panel-bg: #0b1724; /* card/panel background */
+  --panel-bg-2: #0f2430; /* secondary panel */
+  --text-on: #ffffff; /* primary text */
+  --muted: #94a3b8; /* muted text */
+  --brand: #10b981; /* green brand */
+  --accent: #06b6d4; /* cyan accent */
+  --highlight: #fbbf24; /* yellow highlight */
+  --border-panel: rgba(255, 255, 255, 0.04);
+  --glass: rgba(255, 255, 255, 0.02);
+}
+
+/* Utility classes that map existing color usage to theme tokens */
+.bg-app {
+  background-color: var(--app-bg) !important;
+}
+.bg-panel {
+  background-color: var(--panel-bg) !important;
+}
+.bg-panel-2 {
+  background-color: var(--panel-bg-2) !important;
+}
+.text-on {
+  color: var(--text-on) !important;
+}
+.text-muted {
+  color: var(--muted) !important;
+}
+.bg-brand {
+  background-color: var(--brand) !important;
+  color: var(--text-on) !important;
+}
+.bg-accent {
+  background-color: var(--accent) !important;
+  color: var(--text-on) !important;
+}
+/* .bg-highlight {
+  background-color: var(--highlight) !important;
+  color: #000000 !important;
+} */
+.border-panel {
+  border-color: var(--border-panel) !important;
+}
+.glass {
+  background-color: var(--glass) !important;
+}
+
+@theme {
+  --font-kanit: "Kanit", sans-serif;
+}

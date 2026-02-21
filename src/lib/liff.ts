@@ -1,20 +1,23 @@
-import liff from "@line/liff"
+import liff from "@line/liff";
 
-export const initLiff = async () => {
-  if (typeof window === "undefined") return null
+const LIFF_ID = import.meta.env.VITE_LIFF_ID as string;
 
-  const liffId = import.meta.env.VITE_LIFF_ID
-  if (!liffId) {
-    console.error("LIFF ID is missing! Please add VITE_LIFF_ID to your .env file.")
-    return null
+export async function initLiff() {
+  try {
+    await liff.init({ liffId: LIFF_ID });
+
+    if (!liff.isLoggedIn()) {
+      // 1. ถ้ายังไม่ Login ให้เรียก login()
+      liff.login();
+      return null;
+    }
+
+    // 2. ถ้า Login แล้วค่อยคืนค่า liff instance
+    return liff;
+  } catch (err) {
+    console.error("LIFF Init Error:", err);
+    throw err;
   }
-
-  await liff.init({ liffId })
-
-  if (!liff.isLoggedIn()) {
-    liff.login()
-    return null
-  }
-
-  return liff
 }
+
+export default liff;

@@ -1,0 +1,71 @@
+-- WARNING: This schema is for context only and is not meant to be run.
+-- Table order and constraints may not be valid for execution.
+
+CREATE TABLE public.event_registrations (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  event_id uuid NOT NULL,
+  user_id uuid NOT NULL,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT event_registrations_pkey PRIMARY KEY (id),
+  CONSTRAINT event_registrations_event_id_fkey FOREIGN KEY (event_id) REFERENCES public.events(id),
+  CONSTRAINT event_registrations_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.profiles(id)
+);
+CREATE TABLE public.events (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  title text NOT NULL,
+  description text,
+  start_date timestamp without time zone NOT NULL,
+  end_date timestamp without time zone NOT NULL,
+  cover_image_url text,
+  created_at timestamp without time zone DEFAULT now(),
+  album_urls ARRAY DEFAULT '{}'::text[],
+  CONSTRAINT events_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.nicotine_assessments (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  line_user_id text NOT NULL,
+  score integer NOT NULL,
+  level text NOT NULL,
+  created_at timestamp without time zone DEFAULT now(),
+  CONSTRAINT nicotine_assessments_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.poster_templates (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  name text NOT NULL,
+  event_id uuid,
+  template_json jsonb NOT NULL,
+  created_at timestamp without time zone DEFAULT now(),
+  CONSTRAINT poster_templates_pkey PRIMARY KEY (id),
+  CONSTRAINT fk_event FOREIGN KEY (event_id) REFERENCES public.events(id)
+);
+CREATE TABLE public.profiles (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  line_user_id text NOT NULL UNIQUE,
+  display_name text,
+  created_at timestamp without time zone DEFAULT now(),
+  picture_url text,
+  team_id uuid,
+  CONSTRAINT profiles_pkey PRIMARY KEY (id),
+  CONSTRAINT fk_profiles_team FOREIGN KEY (team_id) REFERENCES public.teams(id)
+);
+CREATE TABLE public.runs (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  user_id uuid,
+  distance_km numeric NOT NULL,
+  image_url text,
+  created_at timestamp without time zone DEFAULT now(),
+  raw_ocr_text text,
+  line_message_id text UNIQUE,
+  event_id uuid,
+  status text DEFAULT 'approved'::text,
+  CONSTRAINT runs_pkey PRIMARY KEY (id),
+  CONSTRAINT runs_event_id_fkey FOREIGN KEY (event_id) REFERENCES public.events(id),
+  CONSTRAINT runs_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.profiles(id)
+);
+CREATE TABLE public.teams (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  team_name text NOT NULL,
+  room_code text NOT NULL UNIQUE,
+  created_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
+  CONSTRAINT teams_pkey PRIMARY KEY (id)
+);

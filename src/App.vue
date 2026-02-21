@@ -1,85 +1,100 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { initLiff } from './lib/liff'
-import { getOrCreateProfile } from './composables/useProfile'
-
-const loading = ref(true)
-const profile = ref<any>(null)
+import { onMounted } from "vue";
+import { initLiff } from "./lib/liff";
+import { getOrCreateProfile } from "./composables/useProfile";
+import BottomNav from "./components/BottomNav.vue";
+import {
+  globalProfile,
+  globalLoading,
+  setGlobalProfile,
+  setGlobalLoading,
+} from "./composables/useGlobalUser";
 
 onMounted(async () => {
   try {
-    const liffInstance = await initLiff()
-    if (!liffInstance) return
+    setGlobalLoading(true);
+    const liffInstance = await initLiff();
+    if (!liffInstance) return;
 
-    const user = await liffInstance.getProfile()
-
+    const user = await liffInstance.getProfile();
     const dbProfile = await getOrCreateProfile(
       user.userId,
-      user.displayName
-    )
+      user.displayName,
+      user.pictureUrl || null,
+    );
 
-    profile.value = dbProfile
+    setGlobalProfile(dbProfile);
   } catch (err) {
-    console.error(err)
+    console.error("App Initialize Error:", err);
   } finally {
-    loading.value = false
+    setGlobalLoading(false);
   }
-})
+});
 </script>
 
 <template>
-  <div class="min-h-screen bg-black text-white pb-20">
-    <div v-if="loading" class="flex items-center justify-center h-screen">
-      <div class="animate-pulse text-green-400">Loading...</div>
+  <div class="min-h-screen bg-[#F5F7F6] text-gray-800 pb-24 font-kanit">
+    <!-- Loading -->
+    <div
+      v-if="globalLoading"
+      class="flex flex-col items-center justify-center h-screen"
+    >
+      <div
+        class="w-10 h-10 border-4 border-green-100 border-t-green-500 rounded-full animate-spin"
+      ></div>
+      <p class="mt-4 text-sm text-gray-500">กำลังโหลดข้อมูล...</p>
     </div>
-    
+
+    <!-- App -->
     <div v-else>
-      <!-- Header Area -->
-      <header class="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-900/50 sticky top-0 backdrop-blur-md z-10">
-        <h1 class="text-xl font-bold bg-linear-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">
-          Run Tracker
-        </h1>
-        <div class="text-sm text-gray-400">
-          Hi, {{ profile?.display_name }}
+      <!-- Header -->
+      <header
+        class="px-4 py-3 bg-white border-b border-gray-100 sticky top-0 z-50"
+      >
+        <div class="flex justify-between items-center">
+          <h1 class="text-lg font-semibold text-gray-900">Dashboard</h1>
+
+          <div v-if="globalProfile" class="flex items-center gap-2">
+            <img
+              v-if="globalProfile.picture_url"
+              :src="globalProfile.picture_url"
+              class="w-8 h-8 rounded-full object-cover"
+            />
+            <div v-else class="w-8 h-8 rounded-full bg-gray-200"></div>
+
+            <span class="text-sm font-medium truncate max-w-[100px]">
+              {{ globalProfile.display_name }}
+            </span>
+          </div>
         </div>
       </header>
 
-      <!-- Page Content -->
-      <main>
+      <!-- Content -->
+      <main class="px-4 py-4">
         <RouterView />
       </main>
 
       <!-- Bottom Navigation -->
-      <nav class="fixed bottom-0 left-0 right-0 bg-gray-900 border-t border-gray-800 flex justify-around p-2 pb-6 z-20">
-        <RouterLink 
-          to="/"
-          class="flex flex-col items-center p-2 transition-colors text-gray-500"
-          active-class="!text-green-400"
-        >
-          <span class="text-xs mt-1">Join</span>
-        </RouterLink>
-        <RouterLink 
-          to="/info"
-          class="flex flex-col items-center p-2 transition-colors text-gray-500"
-          active-class="!text-blue-400"
-        >
-          <span class="text-xs mt-1">Info</span>
-        </RouterLink>
-        <RouterLink 
-          to="/rank"
-          class="flex flex-col items-center p-2 transition-colors text-gray-500"
-          active-class="!text-yellow-400"
-        >
-          <span class="text-xs mt-1">Rank</span>
-        </RouterLink>
-        <RouterLink 
-          to="/create-party"
-          class="flex flex-col items-center p-2 transition-colors text-gray-500"
-          active-class="!text-purple-400"
-        >
-          <span class="text-xs mt-1">Party</span>
-        </RouterLink>
-      </nav>
+      <BottomNav />
     </div>
   </div>
 </template>
+
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap");
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #f5f7f6;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.font-kanit {
+  font-family: "Kanit", sans-serif;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+</style>
